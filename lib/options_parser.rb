@@ -11,6 +11,8 @@ class OptionsParser
     opts.each do |opt, arg|
       @country = arg if opt == '--country'
     end
+
+    raise(ArgumentError, 'Missing country argument') unless @country
   end
 
   def self.parse

@@ -3,10 +3,9 @@
 require 'pry'
 require 'nokogiri'
 require 'csv'
-require_relative './options_parser'
+require_relative './lib/options_parser'
 
 OPTIONS = OptionsParser.parse
-return unless OPTIONS.country
 
 shares = []
 
