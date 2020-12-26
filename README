@@ -1,0 +1,1 @@
+`$('#index-list-container tbody tr a').each(function(_index, link) { console.log($(link).attr('href')) } )`
