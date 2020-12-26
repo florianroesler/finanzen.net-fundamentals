@@ -3,10 +3,14 @@
 require 'pry'
 require 'nokogiri'
 require 'csv'
+require_relative './options_parser'
+
+OPTIONS = OptionsParser.parse
+return unless OPTIONS.country
 
 shares = []
 
-Dir.glob('data/de/*.html').each do |filename|
+Dir.glob("data/#{OPTIONS.country}/*.html").each do |filename|
   next if filename == '.' or filename == '..'
 
   file_contents = File.read(filename)
@@ -41,7 +45,7 @@ end
 
 puts "Writing #{shares.size} rows"
 
-CSV.open('data.csv', 'wb', write_headers: true) do |csv|
+CSV.open("data_#{OPTIONS.country}.csv", 'wb', write_headers: true) do |csv|
   keys = shares.map(&:keys).flatten.uniq
   csv << keys
   shares.each do |share|
