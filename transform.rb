@@ -17,14 +17,16 @@ Dir.glob("data/#{OPTIONS.country}/*.html").each do |filename|
 
   document.css('h2').first.css('span').remove
   share_name = document.css('h2').first.text.encode('UTF-8', invalid: :replace, undef: :replace)
-  puts share_name
+  puts "#{share_name} (#{filename})"
 
   quote_box = document.css('.quotebox').first
   share_price = quote_box.css('> div').first.text
 
   eps_table = document.css('.table-quotes').last
 
-  years = eps_table.css('thead th')[2..].map(&:text)
+  years = eps_table.css('thead th')[2..]&.map(&:text)
+
+  next if years.nil?
 
   earnings_per_shares = eps_table.css('tr')[1].css('td')[2..].map(&:text)
   dividends = eps_table.css('tr')[5].css('td')[2..].map(&:text)

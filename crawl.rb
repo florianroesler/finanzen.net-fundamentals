@@ -4,6 +4,7 @@ require 'open-uri'
 require 'net/http'
 require 'pry'
 require 'nokogiri'
+require 'addressable/uri'
 
 require_relative './lib/options_parser'
 
@@ -16,7 +17,7 @@ def download_html(url)
   path = "data/#{OPTIONS.country}/#{name}.html"
   return if File.file?(path)
 
-  response = URI.open(url, 'User-Agent' => USER_AGENT).read
+  response = URI.open(Addressable::URI.escape(url), 'User-Agent' => USER_AGENT).read
   document = Nokogiri::HTML(response)
   File.write(path, document.to_html)
   sleep 3
