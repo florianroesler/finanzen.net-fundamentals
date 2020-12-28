@@ -10,7 +10,7 @@ OPTIONS = OptionsParser.parse
 shares = []
 
 def text_to_number(text)
-  text.gsub(',', '.').to_f
+  text.gsub('.', '').gsub(',', '.').to_f
 end
 
 def extract_name(document)
@@ -24,6 +24,8 @@ end
 
 def extract_share_price(document)
   quote_box = document.css('.quotebox').last
+  return unless quote_box
+
   price_with_currency = quote_box.css('> div').first.text.strip
 
   price, currency = price_with_currency.match(/([\d\.]+,\d+)(\w+)/i).captures
@@ -63,6 +65,7 @@ Dir.glob("data/#{OPTIONS.country}/*.html").each do |filename|
   puts "#{share_name} (#{filename})"
 
   share_price, currency = extract_share_price(document)
+  next if share_price.nil?
 
   years, revenues = extract_revenues(document)
   next if years.nil?
