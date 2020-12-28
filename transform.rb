@@ -9,6 +9,49 @@ OPTIONS = OptionsParser.parse
 
 shares = []
 
+def text_to_number(text)
+  text.gsub(',', '.').to_f
+end
+
+def extract_name(document)
+  document
+    .css('h2')
+    .first
+    .text
+    .encode('UTF-8', invalid: :replace, undef: :replace)
+    .split('Aktie').first
+end
+
+def extract_share_price(document)
+  quote_box = document.css('.quotebox').last
+  price_with_currency = quote_box.css('> div').first.text.strip
+
+  price, currency = price_with_currency.match(/(\d+.\d+)(\w+)/i).captures
+
+  [text_to_number(price), currency]
+end
+
+def extract_earnings_and_dividends(document)
+  eps_table = document.css('.table-quotes').last
+
+  earnings_per_shares = eps_table.css('tr')[1].css('td')[2..].map { |element| text_to_number(element.text) }
+  dividends = eps_table.css('tr')[5].css('td')[2..].map { |element| text_to_number(element.text) }
+
+  [earnings_per_shares, dividends]
+end
+
+def extract_revenues(document)
+  revenue_table = document.css('.table-quotes')[1]
+
+  years = revenue_table.css('thead th')[2..]&.map(&:text)
+
+  return if years.nil?
+
+  revenues = revenue_table.css('tr')[1].css('td')[2..].map { |element| text_to_number(element.text) }
+
+  [years, revenues]
+end
+
 Dir.glob("data/#{OPTIONS.country}/*.html").each do |filename|
   next if filename == '.' or filename == '..'
 
@@ -16,27 +59,24 @@ Dir.glob("data/#{OPTIONS.country}/*.html").each do |filename|
   document = Nokogiri::HTML(file_contents, nil, Encoding::UTF_8.to_s)
 
   document.css('h2').first.css('span').remove
-  share_name = document.css('h2').first.text.encode('UTF-8', invalid: :replace, undef: :replace)
+  share_name = extract_name(document)
   puts "#{share_name} (#{filename})"
 
-  quote_box = document.css('.quotebox').first
-  share_price = quote_box.css('> div').first.text
+  share_price, currency = extract_share_price(document)
 
-  eps_table = document.css('.table-quotes').last
-
-  years = eps_table.css('thead th')[2..]&.map(&:text)
-
+  years, revenues = extract_revenues(document)
   next if years.nil?
 
-  earnings_per_shares = eps_table.css('tr')[1].css('td')[2..].map(&:text)
-  dividends = eps_table.css('tr')[5].css('td')[2..].map(&:text)
+  earnings_per_shares, dividends = extract_earnings_and_dividends(document)
 
   values = {}
 
   values['Name'] = share_name
   values['Share Price'] = share_price
+  values['Currency'] = currency
 
   years.each_with_index do |year, index|
+    values["Revenue #{year}"] = revenues[index]
     values["EPS #{year}"] = earnings_per_shares[index]
     values["Dividend #{year}"] = dividends[index]
   end
