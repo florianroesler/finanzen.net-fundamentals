@@ -54,7 +54,7 @@ def extract_revenues(document)
   [years, revenues]
 end
 
-Dir.glob("data/#{OPTIONS.country}/*.html").each do |filename|
+Dir.glob("data/#{OPTIONS.region}/*.html").each do |filename|
   next if filename == '.' or filename == '..'
 
   file_contents = File.read(filename)
@@ -89,7 +89,7 @@ end
 
 puts "Writing #{shares.size} rows"
 
-CSV.open("data_#{OPTIONS.country}.csv", 'wb', write_headers: true) do |csv|
+CSV.open("data_#{OPTIONS.region}.csv", 'wb', write_headers: true) do |csv|
   keys = shares.map(&:keys).flatten.uniq
   csv << keys
   shares.each do |share|

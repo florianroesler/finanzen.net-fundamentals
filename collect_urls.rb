@@ -43,7 +43,7 @@ rescue OpenURI::HTTPError => e
 end
 
 stock_urls = []
-index_urls = INDICES.fetch(OPTIONS.country.to_sym)
+index_urls = INDICES.fetch(OPTIONS.region.to_sym)
 
 index_urls.each do |index_url|
   index_pages = collect_index_pages(index_url)
@@ -53,4 +53,4 @@ index_urls.each do |index_url|
   end
 end
 
-IO.write("urls_#{OPTIONS.country}", stock_urls.join("\n"))
+IO.write("urls_#{OPTIONS.region}", stock_urls.join("\n"))

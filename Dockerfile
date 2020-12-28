@@ -16,5 +16,3 @@ COPY Gemfile* $APP_HOME/
 RUN bundle install
 
 COPY . $APP_HOME/
-
-CMD start.sh 3000 production

@@ -1,18 +1,18 @@
 require 'getoptlong'
 
 class OptionsParser
-  attr_reader :country
+  attr_reader :region
 
   def initialize
     opts = GetoptLong.new(
-      [ '--country', GetoptLong::REQUIRED_ARGUMENT ]
+      [ '--region', GetoptLong::REQUIRED_ARGUMENT ]
     )
 
     opts.each do |opt, arg|
-      @country = arg if opt == '--country'
+      @region = arg if opt == '--region'
     end
 
-    raise(ArgumentError, 'Missing country argument') unless @country
+    raise(ArgumentError, 'Missing region argument') unless @region
   end
 
   def self.parse
