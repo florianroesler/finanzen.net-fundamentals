@@ -26,7 +26,7 @@ def extract_share_price(document)
   quote_box = document.css('.quotebox').last
   price_with_currency = quote_box.css('> div').first.text.strip
 
-  price, currency = price_with_currency.match(/(\d+.\d+)(\w+)/i).captures
+  price, currency = price_with_currency.match(/([\d\.]+,\d+)(\w+)/i).captures
 
   [text_to_number(price), currency]
 end
