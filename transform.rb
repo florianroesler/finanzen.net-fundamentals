@@ -20,17 +20,6 @@ def extract_name(document)
     .split('Aktie').first
 end
 
-def extract_share_price(document)
-  quote_box = document.css('.quotebox').first
-  return unless quote_box
-
-  price_with_currency = quote_box.css('> div').first.text.strip
-
-  price, currency = price_with_currency.match(/([\d\.]+,\d+)(\w+)/i).captures
-
-  [text_to_number(price), currency]
-end
-
 def extract_earnings_and_dividends(document)
   eps_table = document.css('.table-quotes').last
 
