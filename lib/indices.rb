@@ -6,10 +6,10 @@ INDICES = {
     'https://www.finanzen.net/index/sdax/werte'
   ],
   us: [
-    'https://www.finanzen.net/index/dow_jones/werte',
-    'https://www.finanzen.net/index/nasdaq_100/werte',
     'https://www.finanzen.net/index/s&p_500/werte',
-    'https://www.finanzen.net/index/s&p_600_small_cap/werte'
+    'https://www.finanzen.net/index/s&p_600_small_cap/werte',
+    'https://www.finanzen.net/index/dow_jones/werte',
+    'https://www.finanzen.net/index/nasdaq_100/werte'
   ],
   eu: [
     'https://www.finanzen.net/index/ftse_100/werte',
