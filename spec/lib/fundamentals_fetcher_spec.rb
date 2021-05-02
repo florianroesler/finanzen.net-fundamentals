@@ -5,51 +5,48 @@ RSpec.describe FundamentalsFetcher do
   let(:subject) { FundamentalsFetcher.new(base_url) }
   let(:vcr_name ) { 'download_html_hugo_boss' }
 
-  describe '#download_html' do
-    it 'returns an html page of the fundamentals' do
-      VCR.use_cassette(vcr_name) do
-        response = subject.download_html
+  around do |example|
+    VCR.use_cassette(vcr_name) { example.run }
+  end
 
-        expect(response.css('.headline-container').first.text).to eq('HUGO BOSS Umsatz, Kennzahlen, Bilanz/GuV')
-      end
+  describe '#document' do
+    it 'returns an html page of the fundamentals' do
+      response = subject.document
+      expect(response.css('.headline-container').first.text).to eq('HUGO BOSS Umsatz, Kennzahlen, Bilanz/GuV')
     end
   end
 
   describe '#share_price' do
-    before do
-      VCR.use_cassette(vcr_name) { subject.download_html }
-    end
-
     it 'returns the share price including currency' do
       expect(subject.share_price).to eq([38.33, 'EUR'])
     end
   end
 
   describe '#name' do
-    before do
-      VCR.use_cassette(vcr_name) { subject.download_html }
-    end
-
-    it 'returns the stock name' do
+     it 'returns the stock name' do
       expect(subject.name).to eq('HUGO BOSS')
     end
   end
 
-  describe '#reporting_years' do
-    before do
-      VCR.use_cassette(vcr_name) { subject.download_html }
+  describe '#wkn' do
+    it 'returns the wkn' do
+      expect(subject.wkn).to eq('A1PHFF')
     end
+  end
 
+  describe '#isin' do
+    it 'returns the isin' do
+      expect(subject.isin).to eq('DE000A1PHFF7')
+    end
+  end
+
+  describe '#reporting_years' do
     it 'returns the years of available reports' do
       expect(subject.reporting_years).to eq(%w[2014 2015 2016 2017 2018 2019 2020])
     end
   end
 
   describe '#revenues' do
-    before do
-      VCR.use_cassette(vcr_name) { subject.download_html }
-    end
-
     it 'extracts the revenues per year' do
       expect(subject.revenues).to eq(
         {
@@ -66,10 +63,6 @@ RSpec.describe FundamentalsFetcher do
   end
 
   describe '#earnings_and_dividends' do
-    before do
-      VCR.use_cassette(vcr_name) { subject.download_html }
-    end
-
     it 'extracts the earings and dividends per year' do
       expect(subject.earnings_and_dividends).to eq(
         {
@@ -86,10 +79,6 @@ RSpec.describe FundamentalsFetcher do
   end
 
   describe '#reporting_currency' do
-    before do
-      VCR.use_cassette(vcr_name) { subject.download_html }
-    end
-
     it 'extracts the reporting currency' do
       expect(subject.reporting_currency).to eq('EUR')
     end

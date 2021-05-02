@@ -9,15 +9,15 @@ require 'addressable/uri'
 class FundamentalsFetcher
   URL_PREFIX = 'https://www.finanzen.net/bilanz_guv/'
 
-  attr_reader :document
-
   def initialize(base_url)
     @base_url = base_url
   end
 
-  def download_html
-    response = URI.open(Addressable::URI.escape(fundamentals_url), 'User-Agent' => OptionsParser::USER_AGENT).read
-    @document = Nokogiri::HTML(response)
+  def document
+    @document ||= begin
+      response = URI.open(Addressable::URI.escape(fundamentals_url), 'User-Agent' => OptionsParser::USER_AGENT).read
+      Nokogiri::HTML(response)
+    end
   rescue OpenURI::HTTPError => e
     puts "404 for #{name}"
   end
@@ -31,6 +31,14 @@ class FundamentalsFetcher
       .split('Aktie')
       .first
       .strip
+  end
+
+  def wkn
+    Regexp.new('WKN: (\w*)').match(document.css('.instrument-id').text).captures.first
+  end
+
+  def isin
+    Regexp.new('ISIN: (\w*)').match(document.css('.instrument-id').text).captures.first
   end
 
   def share_price
