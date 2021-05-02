@@ -23,4 +23,4 @@ INDICES = {
     'https://www.finanzen.net/index/nikkei_225/werte',
     'https://www.finanzen.net/index/hang_seng/werte'
   ]
-}
+}.freeze

@@ -28,19 +28,19 @@ Run `bundle install` and after installation of all the required gems you should 
 
 # Commands
 
-Available regions: `us, eu, de, eu`
+Available regionss: `us, eu, de, eu`
 
 ## Collect Stock URLS for Indices
 
-`ruby collect_urls.rb --region us`
+`ruby collect_urls.rb --regions us,de`
 
-## Download HTMLs for each stock from a region
+## Download HTMLs for each stock from a regions
 
-`ruby download.rb --region us`
+`ruby download.rb --regions us,de`
 
-## Transform HTML to CSV for a region
+## Transform HTML to CSV for a regions
 
-`ruby transform.rb --region us`
+`ruby transform.rb --regions us,de`
 
 # Download speed
 

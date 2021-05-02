@@ -7,8 +7,6 @@ require_relative './lib/options_parser'
 
 OPTIONS = OptionsParser.parse
 
-shares = []
-
 def text_to_number(text)
   text.gsub('.', '').gsub(',', '.').to_f
 end
@@ -23,7 +21,7 @@ def extract_name(document)
 end
 
 def extract_share_price(document)
-  quote_box = document.css('.quotebox').last
+  quote_box = document.css('.quotebox').first
   return unless quote_box
 
   price_with_currency = quote_box.css('> div').first.text.strip
@@ -54,45 +52,64 @@ def extract_revenues(document)
   [years, revenues]
 end
 
-Dir.glob("data/#{OPTIONS.region}/*.html").each do |filename|
-  next if filename == '.' or filename == '..'
+def extract_reporting_currency(document)
+  revenue_table = document.css('.table-quotes').first
 
-  file_contents = File.read(filename)
-  document = Nokogiri::HTML(file_contents, nil, Encoding::UTF_8.to_s)
+  header = revenue_table.css('h2')&.text&.encode('UTF-8', invalid: :replace, undef: :replace)
 
-  document.css('h2').first.css('span').remove
-  share_name = extract_name(document)
-  puts "#{share_name} (#{filename})"
+  return if header.nil?
 
-  share_price, currency = extract_share_price(document)
-  next if share_price.nil?
+  matching_string = header.match(/\((.+)\)/)&.captures&.first
 
-  years, revenues = extract_revenues(document)
-  next if years.nil?
+  return if matching_string.nil?
 
-  earnings_per_shares, dividends = extract_earnings_and_dividends(document)
-
-  values = {}
-
-  values['Name'] = share_name
-  values['Share Price'] = share_price
-  values['Currency'] = currency
-
-  years.each_with_index do |year, index|
-    values["Revenue #{year}"] = revenues[index]
-    values["EPS #{year}"] = earnings_per_shares[index]
-    values["Dividend #{year}"] = dividends[index]
-  end
-
-  shares << values
+  matching_string.split(' ').last
 end
 
-puts "Writing #{shares.size} rows"
+OPTIONS.regions.each do |region|
+  shares = []
 
-CSV.open("data_#{OPTIONS.region}.csv", 'wb', write_headers: true) do |csv|
-  keys = shares.map(&:keys).flatten.uniq
-  csv << keys
-  shares.each do |share|
-    csv << CSV::Row.new(keys, share.values_at(*keys))
+  Dir.glob("data/#{region}/*.html").each do |filename|
+    next if filename == '.' or filename == '..'
+
+    file_contents = File.read(filename)
+    document = Nokogiri::HTML(file_contents, nil, Encoding::UTF_8.to_s)
+
+    document.css('h2').first.css('span').remove
+    share_name = extract_name(document)
+    puts "#{share_name} (#{filename})"
+
+    share_price, currency = extract_share_price(document)
+    next if share_price.nil?
+
+    years, revenues = extract_revenues(document)
+    next if years.nil?
+
+    earnings_per_shares, dividends = extract_earnings_and_dividends(document)
+
+    values = {}
+
+    values['Name'] = share_name
+    values['Share Price'] = share_price
+    values['Currency'] = currency
+    values['Reporting Currency'] = extract_reporting_currency(document)
+
+    years.each_with_index do |year, index|
+      values["Revenue #{year}"] = revenues[index]
+      values["EPS #{year}"] = earnings_per_shares[index]
+      values["Dividend #{year}"] = dividends[index]
+    end
+
+    shares << values
+  end
+
+  puts "Writing #{shares.size} rows"
+
+  CSV.open("data_#{region}.csv", 'wb', write_headers: true) do |csv|
+    keys = shares.map(&:keys).flatten.uniq
+    csv << keys
+    shares.each do |share|
+      csv << CSV::Row.new(keys, share.values_at(*keys))
+    end
   end
 end
