@@ -4,12 +4,12 @@ require_relative './lib/url_collector'
 OPTIONS = OptionsParser.parse
 
 OPTIONS.regions.each do |region|
-  stock_urls = []
   index_urls = INDICES.fetch(region.to_sym)
 
-  index_urls.each do |index_url|
-
-  end
+  stock_urls = index_urls
+    .map { |index_url| collect_stock_urls(index_url) }
+    .flatten
+    .uniq
 
   IO.write("data/urls_#{region}", stock_urls.join("\n"))
 end
