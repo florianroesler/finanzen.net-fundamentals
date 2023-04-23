@@ -1,6 +1,6 @@
-FROM ruby:3.2.2-alpine3.17
+FROM ruby:3.2.2-slim-bullseye
 
-RUN apk add --update alpine-sdk libxml2-dev libxslt-dev less gcompat
+RUN apt-get update && apt-get install -y chromium libxml2-dev libxslt-dev make build-essential
 
 RUN gem update --system && gem install bundler && bundle config build.nokogiri --use-system-libraries
 

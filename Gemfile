@@ -5,6 +5,7 @@ gem 'addressable'
 gem 'pry'
 gem 'pry-byebug'
 gem 'require_all'
+gem 'puppeteer-ruby'
 
 group :test do
   gem 'rspec'
