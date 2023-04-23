@@ -6,8 +6,9 @@ OPTIONS = OptionsParser.parse
 OPTIONS.regions.each do |region|
   index_urls = INDICES.fetch(region.to_sym)
 
+  collector = UrlCollector.new
   stock_urls = index_urls
-    .map { |index_url| collect_stock_urls(index_url) }
+    .map { |index_url| collector.collect_stock_urls(index_url) }
     .flatten
     .uniq
 

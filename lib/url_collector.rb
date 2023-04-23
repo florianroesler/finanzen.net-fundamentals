@@ -22,7 +22,7 @@ class UrlCollector
     response = URI.open(index_url, 'User-Agent' => OptionsParser::USER_AGENT).read
     document = Nokogiri::HTML(response)
 
-    page_links = document.css('.finando_paging a').map { |link| link.attr('href') }
+    page_links = document.css('.pagination__list a').map { |link| link.attr('href') }
 
     if page_links.any?
       puts "Found #{page_links.size} pages for #{index_url}"
@@ -32,7 +32,8 @@ class UrlCollector
       [index_url]
     end
   rescue OpenURI::HTTPError => e
-    puts "404 for #{name}"
+    puts "#{response.status} for #{index_url}"
+    []
   end
 
   def collect_stock_urls_for_page(index_url)
@@ -44,6 +45,7 @@ class UrlCollector
 
     document.css('#index-list-container tr a').map { |link| link.attr('href') }
   rescue OpenURI::HTTPError => e
-    puts "404 for #{name}"
+    puts "#{response.status} for #{index_url}"
+    []
   end
 end

@@ -28,7 +28,7 @@ Run `bundle install` and after installation of all the required gems you should 
 
 # Commands
 
-Available regionss: `us, eu, de, eu`
+Available regionss: `us, de, europe, asia, australia`
 
 ## Collect Stock URLS for Indices
 

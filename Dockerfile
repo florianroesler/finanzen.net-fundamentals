@@ -1,6 +1,6 @@
-FROM ruby:2.7.2-alpine3.12
+FROM ruby:3.2.2-alpine3.17
 
-RUN apk add --update alpine-sdk libxml2-dev libxslt-dev less
+RUN apk add --update alpine-sdk libxml2-dev libxslt-dev less gcompat
 
 RUN gem update --system && gem install bundler && bundle config build.nokogiri --use-system-libraries
 
