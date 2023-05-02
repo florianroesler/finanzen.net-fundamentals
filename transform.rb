@@ -1,9 +1,9 @@
 # encoding: utf-8
 
 require 'pry'
-require 'nokogiri'
 require 'csv'
 require_relative './lib/options_parser'
+require_relative './lib/fundamentals_extractor'
 
 OPTIONS = OptionsParser.parse
 
@@ -62,10 +62,11 @@ OPTIONS.regions.each do |region|
     next if filename == '.' or filename == '..'
 
     file_contents = File.read(filename)
-    document = Nokogiri::HTML(file_contents, nil, Encoding::UTF_8.to_s)
+    extractor = FundamentalsExtractor.new(file_contents)
 
+    # binding.pry
     document.css('h2').first.css('span').remove
-    share_name = extract_name(document)
+    share_name = extractor.name
     puts "#{share_name} (#{filename})"
 
     share_price, currency = extract_share_price(document)
