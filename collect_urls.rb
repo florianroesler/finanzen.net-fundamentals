@@ -1,6 +1,6 @@
 require_relative './lib/options_parser'
 require_relative './lib/url_collector'
-require_relative './lib//scraper'
+require_relative './lib/scraper'
 
 OPTIONS = OptionsParser.parse
 

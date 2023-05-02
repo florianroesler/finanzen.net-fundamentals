@@ -28,6 +28,6 @@ INDICES = {
   ],
   australia:
   [
-    'https://www.finanzen.net/index/s&p_asx_300/werte'
+    'https://www.finanzen.net/index/asx/werte'
   ]
 }.freeze

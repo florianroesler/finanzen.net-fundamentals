@@ -9,17 +9,22 @@ require 'addressable/uri'
 class FundamentalsFetcher
   URL_PREFIX = 'https://www.finanzen.net/bilanz_guv/'
 
-  def initialize(base_url)
+  def initialize(scraper, base_url)
+    @scraper = scraper
     @base_url = base_url
   end
 
   def document
     @document ||= begin
-      response = URI.open(Addressable::URI.escape(fundamentals_url), 'User-Agent' => OptionsParser::USER_AGENT).read
-      Nokogiri::HTML(response)
+      response = @scraper.scrape(Addressable::URI.escape(fundamentals_url))
+
+      unless response.status == 200
+        puts "#{response.status} for #{name}"
+        return
+      end
+
+      Nokogiri::HTML(response.html)
     end
-  rescue OpenURI::HTTPError => e
-    puts "404 for #{name}"
   end
 
   def name
