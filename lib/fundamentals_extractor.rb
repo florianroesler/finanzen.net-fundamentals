@@ -43,34 +43,52 @@ class FundamentalsExtractor
 
   def reporting_years
     @reporting_years ||= begin
-      revenue_table.css('thead th')[1..]&.map(&:text)
-    end
-  end
-
-  def revenues
-    @revenues ||= begin
-      revenues = revenue_table.css('tr')[1].css('td')[1..].map { |element| text_to_number(element.text) }
-
-      reporting_years.zip(revenues).to_h
-    end
-  end
-
-  def earnings_and_dividends
-    @earnings_and_dividends ||= begin
-      eps_table = earnings_table
-
-      earnings_per_shares = eps_table.css('tr')[1].css('td')[1..].map { |element| text_to_number(element.text) }
-      dividends = eps_table.css('tr')[3].css('td')[1..].map { |element| text_to_number(element.text) }
-
-      reporting_years.zip(earnings_per_shares, dividends).each_with_object({}) do |values, hash|
-        year, eps, dividend = values
-        hash[year] = { eps: eps, dividend: dividend }
+      if revenue_table
+        revenue_table.css('thead th')[1..]&.map(&:text)
+      else
+        []
       end
     end
   end
 
+  def revenues
+    return {} if revenue_table.nil?
+
+    revenues = revenue_table.css('tr')[1].css('td')[1..].map { |element| text_to_number(element.text) }
+    reporting_years.zip(revenues).to_h.reject { |k, v| v.nil? }
+  end
+
+  def earnings
+    return {} if earnings_table.nil?
+
+    earnings_per_shares = earnings_table.css('tr')[1].css('td')[1..].map { |element| text_to_number(element.text) }
+    reporting_years.zip(earnings_per_shares).to_h.reject { |k, v| v.nil? }
+  end
+
+  def dividends
+    return {} if earnings_table.nil?
+
+    dividends = earnings_table.css('tr')[3].css('td')[1..].map { |element| text_to_number(element.text) }
+    reporting_years.zip(dividends).to_h.reject { |k, v| v.nil? }
+  end
+
+  def yearly_performance
+    return {} if reporting_years.empty?
+
+    reporting_years.zip(revenues, earnings, dividends).each_with_object({}) do |values, hash|
+      year, revenue, earning, dividend = values
+
+      hash[year] = {}
+      hash[year][:eps] = earning&.last
+      hash[year][:revenue] = revenue&.last
+      hash[year][:dividend] = dividend&.last
+    end
+  end
+
   def reporting_currency
-    header = revenue_table.css('h2')&.text&.encode('UTF-8', invalid: :replace, undef: :replace)
+    return nil if revenue_table.nil?
+
+    header = revenue_table.parent.parent.css('h2')&.text&.encode('UTF-8', invalid: :replace, undef: :replace)
 
     return if header.nil?
 
@@ -84,11 +102,11 @@ class FundamentalsExtractor
   private
 
   def earnings_table
-    document.css('.page-content__container .page-content__item')[2]
+    @earnings_table ||= document.css('.page-content__container .page-content__item table')[0]
   end
 
   def revenue_table
-    document.css('.page-content__container .page-content__item')[3]
+    @revenue_table ||= document.css('.page-content__container .page-content__item table')[1]
   end
 
   def text_to_number(text)

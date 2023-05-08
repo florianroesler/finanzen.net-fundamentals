@@ -34,11 +34,11 @@ Available regions: `us, de, europe, asia, australia`
 
 `ruby collect_urls.rb --regions us,de`
 
-## Download HTMLs for each stock from a regions
+## Download HTMLs for each stock from a region
 
 `ruby download.rb --regions us,de`
 
-## Transform HTML to CSV for a regions
+## Transform HTML to CSV for a region
 
 `ruby transform.rb --regions us,de`
 
